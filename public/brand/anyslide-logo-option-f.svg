@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">AnySlide Logo Option F</title>
+  <desc id="desc">A deep orange rounded-square mark showing a complete four-card content set.</desc>
+  <rect x="40" y="40" width="432" height="432" rx="104" fill="#C96B35"/>
+  <g fill="#fff">
+    <rect x="104" y="152" width="86" height="214" rx="24" opacity=".96"/>
+    <rect x="208" y="152" width="86" height="214" rx="24" opacity=".96"/>
+    <rect x="322" y="152" width="86" height="214" rx="24" opacity=".96"/>
+    <rect x="226" y="184" width="50" height="14" rx="7" fill="#C96B35" opacity=".88"/>
+    <rect x="226" y="216" width="38" height="14" rx="7" fill="#C96B35" opacity=".6"/>
+    <rect x="340" y="244" width="50" height="14" rx="7" fill="#C96B35" opacity=".88"/>
+    <rect x="340" y="276" width="35" height="14" rx="7" fill="#C96B35" opacity=".6"/>
+  </g>
+  <rect x="116" y="296" width="62" height="18" rx="9" fill="#C96B35" opacity=".72"/>
+  <path fill="#C96B35" d="M147 184c5.1 0 9.4 3.6 10.4 8.6l6.2 31.1c.9 4.5 4.4 8 8.9 8.9l31.1 6.2c5 1 8.6 5.3 8.6 10.4s-3.6 9.4-8.6 10.4l-31.1 6.2c-4.5.9-8 4.4-8.9 8.9l-6.2 31.1c-1 5-5.3 8.6-10.4 8.6s-9.4-3.6-10.4-8.6l-6.2-31.1c-.9-4.5-4.4-8-8.9-8.9l-31.1-6.2c-5-1-8.6-5.3-8.6-10.4s3.6-9.4 8.6-10.4l31.1-6.2c4.5-.9 8-4.4 8.9-8.9l6.2-31.1c1-5 5.3-8.6 10.4-8.6Z"/>
+  <rect x="106" y="392" width="300" height="28" rx="14" fill="#fff" opacity=".72"/>
+</svg>

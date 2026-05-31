@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">AnySlide Logo Option C</title>
+  <desc id="desc">A deep orange rounded-square mark with an abstract A built from slide panels.</desc>
+  <rect x="40" y="40" width="432" height="432" rx="104" fill="#C96B35"/>
+  <path fill="#fff" d="M144 376 233.8 134c3.8-10.3 13.6-17.1 24.6-17.1s20.8 6.8 24.6 17.1L370 376h-67.5l-14.3-43.8h-64.6L209.3 376H144Zm98.6-102.5h26.8L256 232.1l-13.4 41.4Z"/>
+  <path fill="#fff" d="M321 126c5 0 9.3 3.5 10.3 8.4l5.1 24.7c.8 3.8 3.8 6.8 7.6 7.6l24.7 5.1c4.9 1 8.4 5.3 8.4 10.3s-3.5 9.3-8.4 10.3l-24.7 5.1c-3.8.8-6.8 3.8-7.6 7.6l-5.1 24.7c-1 4.9-5.3 8.4-10.3 8.4s-9.3-3.5-10.3-8.4l-5.1-24.7c-.8-3.8-3.8-6.8-7.6-7.6l-24.7-5.1c-4.9-1-8.4-5.3-8.4-10.3s3.5-9.3 8.4-10.3l24.7-5.1c3.8-.8 6.8-3.8 7.6-7.6l5.1-24.7c1-4.9 5.3-8.4 10.3-8.4Z"/>
+</svg>

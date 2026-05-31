@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="92 112 328 308" role="img" aria-labelledby="title desc">
+  <title id="title">AnySlide Logo Option B Navigation Mark</title>
+  <desc id="desc">A lightweight deep orange stacked-card mark for white navigation backgrounds.</desc>
+  <g fill="none" stroke="#C96B35" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="126" y="156" width="236" height="156" rx="38" stroke-width="36" opacity=".42" transform="rotate(-8 244 234)"/>
+    <rect x="154" y="186" width="236" height="156" rx="38" stroke-width="36" opacity=".64" transform="rotate(6 272 264)"/>
+    <rect x="134" y="216" width="244" height="158" rx="40" stroke-width="38"/>
+    <path stroke-width="28" d="M274 268h58M274 306h42"/>
+  </g>
+  <path fill="#C96B35" d="M218 252c5.9 0 11 4.2 12.1 10l7.1 35.6c1.1 5.4 5.3 9.6 10.7 10.7l35.5 7.1c5.8 1.1 10 6.2 10 12.1s-4.2 11-10 12.1l-35.5 7.1c-5.4 1.1-9.6 5.3-10.7 10.7l-7.1 35.6c-1.1 5.8-6.2 10-12.1 10s-11-4.2-12.1-10l-7.1-35.6c-1.1-5.4-5.3-9.6-10.7-10.7l-35.5-7.1c-5.8-1.1-10-6.2-10-12.1s4.2-11 10-12.1l35.5-7.1c5.4-1.1 9.6-5.3 10.7-10.7l7.1-35.6c1.1-5.8 6.2-10 12.1-10Z"/>
+</svg>
