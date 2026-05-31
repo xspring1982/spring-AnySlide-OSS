@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Creative Voltage · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0066ff;
+    --bg-dark: #1a1a2e;
+    --accent-neon: #d4ff00;
+    --text-light: #ffffff;
+    --text-mute: rgba(255,255,255,.65);
+    --font-display: "Syne", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "Space Mono", "SF Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg-dark); color: var(--text-light); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+  #deck { display: flex; height: 100vh; transition: transform .6s cubic-bezier(.77,0,.175,1); }
+  .slide { width: 100vw; height: 100vh; flex: 0 0 100vw; position: relative; overflow: hidden; }
+
+  /* Halftone pattern overlay */
+  .halftone::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(212,255,0,.08) 1px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+
+  /* Two-panel split: blue left + dark right */
+  .split { display: grid; grid-template-columns: 1fr 1fr; height: 100%; }
+  .panel-blue { background: var(--bg-primary); padding: 6vh 5vw; display: flex; flex-direction: column; position: relative; }
+  .panel-dark { background: var(--bg-dark); padding: 6vh 5vw; display: flex; flex-direction: column; position: relative; }
+
+  .meta-mono { font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent-neon); }
+  .meta-mute { font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--text-mute); }
+
+  /* Cover */
+  .cover .panel-blue { justify-content: space-between; }
+  .cover h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(48px, 8vw, 110px); line-height: .92; letter-spacing: -.02em; }
+  .cover .panel-blue .author { font-family: var(--font-mono); font-size: 13px; letter-spacing: .15em; text-transform: uppercase; opacity: .85; }
+  .cover .panel-dark { justify-content: center; align-items: flex-start; }
+  .cover .panel-dark .badge { display: inline-block; background: var(--accent-neon); color: var(--bg-dark); padding: 8px 18px; border-radius: 100px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; margin-bottom: 4vh; }
+  .cover .panel-dark p { font-size: clamp(20px, 2.2vw, 32px); line-height: 1.4; max-width: 90%; font-style: italic; font-family: var(--font-display); font-weight: 400; }
+
+  /* Section divider — full blue with neon accent */
+  .section-full { background: var(--bg-primary); padding: 8vh 7vw; height: 100%; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .section-full .label { display: inline-block; background: var(--accent-neon); color: var(--bg-dark); padding: 6px 16px; border-radius: 100px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; margin-bottom: 3vh; align-self: flex-start; }
+  .section-full h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(56px, 10vw, 140px); line-height: .92; letter-spacing: -.03em; }
+
+  /* Agenda — dark bg + numbered */
+  .agenda { background: var(--bg-dark); padding: 6vh 7vw; height: 100%; display: flex; flex-direction: column; }
+  .agenda h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.5vw, 56px); margin-bottom: 5vh; max-width: 80%; line-height: 1.05; }
+  .agenda ol { list-style: none; }
+  .agenda li { display: flex; gap: 30px; padding: 2vh 0; border-bottom: 1px solid rgba(255,255,255,.1); align-items: baseline; }
+  .agenda li::before { content: attr(data-num); font-family: var(--font-mono); color: var(--accent-neon); font-size: 20px; font-weight: 700; min-width: 40px; }
+  .agenda li > div strong { display: block; font-size: clamp(20px, 2vw, 28px); margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; }
+  .agenda li > div span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-mute); line-height: 1.5; font-family: var(--font-mono); }
+
+  /* Content + stat (blue side + dark side) */
+  .content-split { display: grid; grid-template-columns: 1.2fr 1fr; height: 100%; }
+  .content-split .left { background: var(--bg-dark); padding: 6vh 5vw; display: flex; flex-direction: column; justify-content: center; }
+  .content-split .left h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4vw, 48px); margin-bottom: 3vh; line-height: 1.1; }
+  .content-split .left p { font-family: var(--font-mono); font-size: clamp(13px, 1.2vw, 16px); line-height: 1.7; color: var(--text-mute); margin-bottom: 1.5vh; }
+  .content-split .right { background: var(--bg-primary); padding: 6vh 5vw; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .content-split .right .stat { font-family: var(--font-display); font-weight: 800; font-size: clamp(80px, 14vw, 180px); line-height: .9; letter-spacing: -.04em; color: var(--accent-neon); }
+  .content-split .right .desc { font-size: clamp(16px, 1.5vw, 22px); line-height: 1.5; margin-top: 3vh; max-width: 85%; }
+  .content-split .right .source { font-family: var(--font-mono); margin-top: 4vh; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; opacity: .65; padding-top: 2vh; border-top: 1px solid rgba(255,255,255,.2); }
+
+  /* Quote */
+  .quote-slide { background: var(--bg-dark); padding: 8vh 12vw; height: 100%; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .quote-slide blockquote { font-family: var(--font-display); font-weight: 800; font-style: italic; font-size: clamp(36px, 5.5vw, 72px); line-height: 1.15; letter-spacing: -.02em; max-width: 95%; }
+  .quote-slide blockquote::before { content: "\""; color: var(--accent-neon); font-size: 1.2em; }
+  .quote-slide cite { display: block; margin-top: 5vh; font-family: var(--font-mono); font-style: normal; font-size: 13px; letter-spacing: .15em; text-transform: uppercase; color: var(--text-mute); }
+
+  /* Closing */
+  .closing { background: var(--bg-primary); padding: 8vh 7vw; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+  .closing h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(48px, 8vw, 100px); line-height: .95; }
+  .closing .cta-row { margin-top: 5vh; display: flex; gap: 2vw; align-items: center; }
+  .closing .cta { background: var(--accent-neon); color: var(--bg-dark); padding: 1.6vh 3vw; border-radius: 100px; font-family: var(--font-display); font-weight: 800; text-decoration: none; font-size: 16px; letter-spacing: .05em; }
+  .closing .contact { font-family: var(--font-mono); font-size: 13px; opacity: .85; letter-spacing: .1em; }
+
+  .corner-tl { position: absolute; top: 5vh; left: 5vw; }
+  .corner-tr { position: absolute; top: 5vh; right: 5vw; }
+
+  .watermark { position: fixed; bottom: 12px; right: 16px; font-family: var(--font-mono); font-size: 10px; color: var(--accent-neon); letter-spacing: .15em; text-transform: uppercase; z-index: 100; }
+  .pager { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 50; }
+  .pager button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent-neon); background: rgba(0,0,0,.4); color: var(--accent-neon); cursor: pointer; }
+  .pager button:hover { background: var(--accent-neon); color: var(--bg-dark); }
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- 1 Cover -->
+  <section class="slide cover">
+    <div class="split">
+      <div class="panel-blue halftone">
+        <span class="meta-mute corner-tl">01 / 08</span>
+        <span class="meta-mono corner-tr">2026 · Q1</span>
+        <h1 style="margin-top:auto">AI 落地<br/>3 个真坑</h1>
+        <span class="author" style="margin-top:3vh">— AnySlide Team · ANYSLIDE</span>
+      </div>
+      <div class="panel-dark halftone">
+        <span class="badge">DEEP DIVE</span>
+        <p>"基于 50+ 企业落地案例的<br/>深度复盘 — 从数据飞轮到生产部署"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 Agenda -->
+  <section class="slide halftone">
+    <div class="agenda">
+      <span class="meta-mute corner-tl">02 / 08 · AGENDA</span>
+      <h2 style="margin-top:8vh">本次讨论的<br/>3 个核心议题</h2>
+      <ol>
+        <li data-num="01"><div><strong>数据飞轮断层</strong><span>为什么 70% 的 AI 项目第二年就死了</span></div></li>
+        <li data-num="02"><div><strong>评估机制缺位</strong><span>没有可量化的"好坏"就没有迭代</span></div></li>
+        <li data-num="03"><div><strong>Demo 到生产的鸿沟</strong><span>80% 完成度的距离</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 Section divider -->
+  <section class="slide halftone">
+    <div class="section-full">
+      <span class="meta-mute corner-tl" style="color:rgba(255,255,255,.7)">03 / 08</span>
+      <span class="label">PROBLEM · 01</span>
+      <h1>数据飞轮<br/>断了</h1>
+    </div>
+  </section>
+
+  <!-- 4 Content + stat -->
+  <section class="slide">
+    <div class="content-split">
+      <div class="left halftone">
+        <span class="meta-mute corner-tl">04 / 08</span>
+        <h2 style="margin-top:6vh">从用户行为到模型迭代<br/>断在了第二步</h2>
+        <p>大部分企业 PoC 阶段能跑通 AI 能力,但产品上线后,用户行为数据没有回流到训练集。3 个月后模型性能衰减,一年后被新需求超越。</p>
+        <p>真正的飞轮:用户行为日志 → 自动标注 → 周度增量训练 → A/B 灰度 → 留存数据回流。每一步都需要工程化。</p>
+      </div>
+      <div class="right halftone">
+        <div>
+          <div class="stat">70%</div>
+          <div class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</div>
+        </div>
+        <div class="source">SOURCE · MCKINSEY 2025</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Section divider -->
+  <section class="slide halftone">
+    <div class="section-full">
+      <span class="meta-mute corner-tl" style="color:rgba(255,255,255,.7)">05 / 08</span>
+      <span class="label">PROBLEM · 02</span>
+      <h1>评估机制<br/>缺位</h1>
+    </div>
+  </section>
+
+  <!-- 6 Bullets -->
+  <section class="slide halftone">
+    <div class="agenda">
+      <span class="meta-mute corner-tl">06 / 08 · EVALUATION FRAMEWORK</span>
+      <h2 style="margin-top:8vh">建立可量化的<br/>4 维评估矩阵</h2>
+      <ol>
+        <li data-num="01"><div><strong>精度 Accuracy</strong><span>离线测试集准确率,只能反映 80% 实际表现</span></div></li>
+        <li data-num="02"><div><strong>召回 Recall</strong><span>覆盖度,跟业务直接挂钩</span></div></li>
+        <li data-num="03"><div><strong>业务 KPI</strong><span>转化率/留存/GMV — 真金白银</span></div></li>
+        <li data-num="04"><div><strong>用户反馈</strong><span>NPS + 投诉率 — 量化的用户感受</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7 Quote -->
+  <section class="slide halftone">
+    <div class="quote-slide">
+      <span class="meta-mute corner-tl">07 / 08 · VOICE</span>
+      <blockquote style="margin-top:auto">不是 AI 难落地,是大部分企业把"AI 项目"和"产品"分开做了。两条腿走路才能走远。</blockquote>
+      <cite>— AnySlide Team</cite>
+    </div>
+  </section>
+
+  <!-- 8 Closing -->
+  <section class="slide halftone">
+    <div class="closing">
+      <span class="meta-mute corner-tl" style="color:rgba(255,255,255,.7)">08 / 08 · CLOSING</span>
+      <h1>3 步落地<br/>下一个季度的 AI 战略</h1>
+      <div class="cta-row">
+        <a href="#" class="cta">START NOW →</a>
+        <span class="contact">support@example.com</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="pager"><button onclick="prev()">←</button><button onclick="next()">→</button></div>
+<script>
+  let idx=0; const deck=document.getElementById('deck'); const total=deck.children.length;
+  function go(i){idx=Math.max(0,Math.min(total-1,i));deck.style.transform=`translateX(-${idx*100}vw)`;}
+  function prev(){go(idx-1);} function next(){go(idx+1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();else if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

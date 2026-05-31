@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pastel Geometry · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF8F2;
+    --card: #ffffff;
+    --ink: #1d1b1a;
+    --ink-soft: #6b6760;
+    --accent-1: #FFB8C5; /* pink */
+    --accent-2: #B8E0D2; /* mint */
+    --accent-3: #C7B8EA; /* lavender */
+    --accent-4: #FFE26F; /* yellow */
+    --accent-5: #FFD3A5; /* peach */
+    --font-sans: "Plus Jakarta Sans", "Noto Sans SC", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #deck { display: flex; height: 100vh; transition: transform .6s cubic-bezier(.77,0,.175,1); }
+  .slide {
+    width: 100vw; height: 100vh; flex: 0 0 100vw;
+    display: flex; position: relative;
+    overflow: hidden;
+  }
+
+  /* vertical pills navigation */
+  .pills {
+    position: absolute; left: 28px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 14px;
+    z-index: 10;
+  }
+  .pill {
+    width: 8px; height: 36px; border-radius: 4px;
+    background: rgba(29,27,26,.12);
+    transition: all .3s;
+  }
+  .pill.active { background: var(--ink); height: 60px; }
+
+  .content {
+    flex: 1; padding: 8vh 6vw 8vh 14vw;
+    display: flex; flex-direction: column;
+  }
+
+  .meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 6vh;
+  }
+  .meta-row .num {
+    background: var(--ink); color: var(--bg);
+    padding: 6px 14px; border-radius: 999px;
+    font-weight: 700; letter-spacing: .1em;
+  }
+
+  /* Geometry decorations */
+  .geom { position: absolute; pointer-events: none; }
+  .geom.circle { border-radius: 50%; }
+  .geom.square { border-radius: 12px; }
+
+  /* Cover */
+  .cover .title {
+    font-weight: 800; font-size: clamp(56px, 8vw, 130px);
+    line-height: .95; letter-spacing: -.03em;
+    margin-top: auto; color: var(--ink);
+  }
+  .cover .title .accent {
+    background: var(--accent-1); padding: 0 12px;
+    border-radius: 16px; display: inline-block;
+  }
+  .cover .subtitle {
+    font-size: clamp(15px, 1.5vw, 20px); color: var(--ink-soft);
+    line-height: 1.6; margin-top: 4vh; max-width: 60%;
+  }
+  .cover .author {
+    margin-top: 6vh; display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .cover .author .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); }
+
+  /* Agenda */
+  .agenda h2 {
+    font-weight: 700; font-size: clamp(32px, 4vw, 56px);
+    line-height: 1.1; margin-bottom: 6vh;
+    letter-spacing: -.02em;
+  }
+  .agenda .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 3vw;
+  }
+  .agenda .card {
+    background: var(--card); border-radius: 24px;
+    padding: 4vh 2.5vw; box-shadow: 0 4px 20px rgba(29,27,26,.06);
+    position: relative; overflow: hidden;
+  }
+  .agenda .card:nth-child(1) { background: var(--accent-1); }
+  .agenda .card:nth-child(2) { background: var(--accent-2); }
+  .agenda .card:nth-child(3) { background: var(--accent-4); }
+  .agenda .card .num {
+    font-weight: 800; font-size: 48px; line-height: 1;
+    color: var(--ink); margin-bottom: 3vh;
+  }
+  .agenda .card h3 {
+    font-weight: 700; font-size: 22px;
+    color: var(--ink); margin-bottom: 1.5vh;
+  }
+  .agenda .card p {
+    font-size: 14px; line-height: 1.6;
+    color: var(--ink); opacity: .8;
+  }
+
+  /* Section divider */
+  .section-divider {
+    align-items: center; justify-content: center;
+    flex-direction: column; padding-left: 14vw;
+  }
+  .section-divider .label {
+    font-size: 13px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 3vh;
+  }
+  .section-divider h1 {
+    font-weight: 800; font-size: clamp(64px, 10vw, 160px);
+    line-height: .9; letter-spacing: -.03em;
+    text-align: center;
+  }
+  .section-divider h1 .accent {
+    background: var(--accent-3); padding: 0 16px;
+    border-radius: 20px;
+  }
+
+  /* Content with stat */
+  .content-with-stat {
+    display: grid; grid-template-columns: 1.2fr 1fr;
+    gap: 4vw; flex: 1; align-items: center;
+  }
+  .content-with-stat h2 {
+    font-weight: 700; font-size: clamp(28px, 3.2vw, 44px);
+    line-height: 1.2; letter-spacing: -.02em;
+    margin-bottom: 4vh;
+  }
+  .content-with-stat p {
+    font-size: clamp(14px, 1.1vw, 16px); line-height: 1.75;
+    color: var(--ink-soft); margin-bottom: 2vh;
+  }
+  .stat-card {
+    background: var(--accent-2); border-radius: 32px;
+    padding: 6vh 3vw; text-align: center;
+    transform: rotate(-2deg);
+    box-shadow: 0 20px 40px rgba(29,27,26,.1);
+  }
+  .stat-card .stat {
+    font-weight: 800; font-size: clamp(72px, 10vw, 160px);
+    line-height: 1; color: var(--ink);
+  }
+  .stat-card .desc {
+    font-size: 15px; line-height: 1.5;
+    color: var(--ink); margin-top: 2vh; font-weight: 600;
+  }
+  .stat-card .src {
+    font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--ink); opacity: .65; margin-top: 3vh;
+  }
+
+  /* Bullets */
+  .bullets-slide h2 {
+    font-weight: 700; font-size: clamp(30px, 3.5vw, 48px);
+    line-height: 1.1; margin-bottom: 5vh;
+    letter-spacing: -.02em;
+  }
+  .bullets-slide ul {
+    list-style: none; display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5vh 2.5vw;
+  }
+  .bullets-slide li {
+    background: var(--card); border-radius: 20px;
+    padding: 3vh 2vw;
+    box-shadow: 0 4px 16px rgba(29,27,26,.06);
+    display: grid; grid-template-columns: 56px 1fr;
+    gap: 2vw; align-items: start;
+  }
+  .bullets-slide li .icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: var(--accent-1);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px;
+  }
+  .bullets-slide li:nth-child(2) .icon { background: var(--accent-2); }
+  .bullets-slide li:nth-child(3) .icon { background: var(--accent-4); }
+  .bullets-slide li:nth-child(4) .icon { background: var(--accent-3); }
+  .bullets-slide li strong {
+    display: block; font-weight: 700; font-size: 18px;
+    margin-bottom: .8vh;
+  }
+  .bullets-slide li span {
+    font-size: 13px; line-height: 1.6; color: var(--ink-soft);
+  }
+
+  /* Quote */
+  .quote-slide {
+    align-items: center; justify-content: center;
+    flex-direction: column; padding-left: 14vw;
+  }
+  .quote-slide .quote-card {
+    background: var(--card); border-radius: 32px;
+    padding: 8vh 6vw; max-width: 80%;
+    box-shadow: 0 30px 60px rgba(29,27,26,.1);
+    text-align: center; position: relative;
+  }
+  .quote-slide blockquote {
+    font-weight: 600; font-size: clamp(24px, 3vw, 40px);
+    line-height: 1.35; letter-spacing: -.01em;
+    color: var(--ink);
+  }
+  .quote-slide cite {
+    display: block; margin-top: 4vh; font-style: normal;
+    font-size: 13px; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600;
+  }
+
+  /* Closing */
+  .closing h1 {
+    font-weight: 800; font-size: clamp(56px, 8vw, 130px);
+    line-height: .95; margin-top: auto;
+    letter-spacing: -.03em;
+  }
+  .closing h1 .accent {
+    background: var(--accent-4); padding: 0 14px;
+    border-radius: 18px; display: inline-block;
+  }
+  .closing .cta-row {
+    display: flex; align-items: center; gap: 24px;
+    margin-top: 6vh;
+  }
+  .closing .cta {
+    background: var(--ink); color: var(--bg);
+    padding: 18px 36px; border-radius: 999px;
+    text-decoration: none; font-weight: 700; font-size: 15px;
+    letter-spacing: .05em;
+  }
+  .closing .contact {
+    font-size: 13px; color: var(--ink-soft);
+  }
+
+  /* Watermark */
+  .watermark {
+    position: fixed; bottom: 18px; right: 24px;
+    font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+    color: rgba(29,27,26,.3); z-index: 100;
+  }
+
+  /* Pager */
+  .pager {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 50;
+  }
+  .pager button {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: none; background: var(--ink); color: var(--bg);
+    cursor: pointer; transition: all .2s; font-size: 16px;
+    box-shadow: 0 4px 12px rgba(29,27,26,.2);
+  }
+  .pager button:hover { background: var(--accent-1); color: var(--ink); transform: scale(1.1); }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- Slide 1: Cover -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill active"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="geom circle" style="width:280px;height:280px;background:var(--accent-1);top:-80px;right:-80px;opacity:.5;"></div>
+    <div class="geom square" style="width:120px;height:120px;background:var(--accent-2);bottom:80px;right:120px;transform:rotate(15deg);"></div>
+    <div class="content cover">
+      <div class="meta-row"><span class="num">01 / 08</span><span>2026 · Q1 · 业务复盘</span></div>
+      <h1 class="title">AI 落地<br/><span class="accent">3 个真坑</span></h1>
+      <p class="subtitle">基于 50+ 企业落地案例的深度复盘 — 从数据飞轮到生产部署</p>
+      <div class="author"><span class="dot"></span><span>AnySlide Team · 2026.05 · BUSINESS · PUBLIC</span></div>
+    </div>
+  </section>
+
+  <!-- Slide 2: Agenda -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill active"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="content agenda">
+      <div class="meta-row"><span class="num">02 / 08</span><span>AGENDA</span></div>
+      <h2>本次讨论的<br/>3 个核心议题</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="num">01</div>
+          <h3>数据飞轮断层</h3>
+          <p>为什么 70% 的 AI 项目第二年就死了</p>
+        </div>
+        <div class="card">
+          <div class="num">02</div>
+          <h3>评估机制缺位</h3>
+          <p>没有可量化的"好坏"就没有迭代</p>
+        </div>
+        <div class="card">
+          <div class="num">03</div>
+          <h3>Demo 到生产</h3>
+          <p>80% 完成度的鸿沟</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Section divider -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill active"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="geom circle" style="width:200px;height:200px;background:var(--accent-3);top:15vh;left:5vw;opacity:.6;"></div>
+    <div class="geom square" style="width:140px;height:140px;background:var(--accent-4);bottom:10vh;right:8vw;transform:rotate(-12deg);"></div>
+    <div class="content section-divider">
+      <p class="label">Problem · 01</p>
+      <h1>数据 <span class="accent">飞轮</span><br/>断了</h1>
+    </div>
+  </section>
+
+  <!-- Slide 4: Content with stat -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill active"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="content">
+      <div class="meta-row"><span class="num">04 / 08</span><span>DATA FLYWHEEL</span></div>
+      <div class="content-with-stat">
+        <div>
+          <h2>从用户行为到模型迭代<br/>断在了第二步</h2>
+          <p>大部分企业在 PoC 阶段能跑通 AI 能力,但产品上线后,用户使用数据没有回流到训练集。3 个月后模型性能开始衰减,一年后被新需求超越。</p>
+          <p>真正的飞轮:用户行为日志 → 自动标注 pipeline → 周度增量训练 → A/B 灰度 → 留存数据 → 回流。</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat">70%</div>
+          <div class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</div>
+          <div class="src">SOURCE · MCKINSEY 2025</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Section divider -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill active"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="geom circle" style="width:240px;height:240px;background:var(--accent-1);top:8vh;right:-50px;opacity:.5;"></div>
+    <div class="geom square" style="width:100px;height:100px;background:var(--accent-2);bottom:15vh;left:18vw;transform:rotate(20deg);"></div>
+    <div class="content section-divider">
+      <p class="label">Problem · 02</p>
+      <h1>评估 <span class="accent" style="background:var(--accent-2)">机制</span><br/>缺位</h1>
+    </div>
+  </section>
+
+  <!-- Slide 6: Bullets -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill active"></div><div class="pill"></div><div class="pill"></div>
+    </div>
+    <div class="content bullets-slide">
+      <div class="meta-row"><span class="num">06 / 08</span><span>EVALUATION FRAMEWORK</span></div>
+      <h2>建立可量化的<br/>4 维评估矩阵</h2>
+      <ul>
+        <li><div class="icon">A</div><div><strong>精度 Accuracy</strong><span>离线测试集准确率 — 但只能反映 80% 实际表现,真实场景永远更复杂</span></div></li>
+        <li><div class="icon">R</div><div><strong>召回 Recall</strong><span>覆盖度 — 多少应该命中的真的命中了,跟业务直接挂钩</span></div></li>
+        <li><div class="icon">K</div><div><strong>业务 KPI</strong><span>转化率 / 留存 / GMV — 真金白银,不可替代</span></div></li>
+        <li><div class="icon">F</div><div><strong>用户反馈</strong><span>NPS + 投诉率 + 主动反馈 — 量化的"用户感受"</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Slide 7: Quote -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill active"></div><div class="pill"></div>
+    </div>
+    <div class="geom circle" style="width:180px;height:180px;background:var(--accent-4);top:8vh;right:8vw;opacity:.6;"></div>
+    <div class="geom square" style="width:120px;height:120px;background:var(--accent-3);bottom:10vh;left:18vw;transform:rotate(-15deg);"></div>
+    <div class="content quote-slide">
+      <div class="quote-card">
+        <blockquote>"不是 AI 难落地,是大部分企业把 AI 项目和产品分开做了。两条腿走路才能走远。"</blockquote>
+        <cite>— AnySlide Team</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Closing -->
+  <section class="slide">
+    <div class="pills">
+      <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill active"></div>
+    </div>
+    <div class="geom circle" style="width:300px;height:300px;background:var(--accent-2);top:-100px;right:-100px;opacity:.5;"></div>
+    <div class="content closing">
+      <div class="meta-row"><span class="num">08 / 08</span><span>CLOSING</span></div>
+      <h1>3 步落地<br/>下一个季度的 <span class="accent">AI 战略</span></h1>
+      <div class="cta-row">
+        <a href="#" class="cta">START NOW →</a>
+        <span class="contact">support@example.com · 2026.05</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+
+<div class="pager">
+  <button onclick="prev()">←</button>
+  <button onclick="next()">→</button>
+</div>
+
+<script>
+  let idx = 0;
+  const deck = document.getElementById('deck');
+  const total = deck.children.length;
+  function go(i){ idx = Math.max(0, Math.min(total-1, i)); deck.style.transform = `translateX(-${idx*100}vw)`; }
+  function prev(){ go(idx-1); }
+  function next(){ go(idx+1); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    else if (e.key === 'ArrowLeft') prev();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">AnySlide Logo Option B</title>
+  <desc id="desc">A deep orange rounded-square mark with stacked content cards and a precise spark.</desc>
+  <rect x="40" y="40" width="432" height="432" rx="104" fill="#C96B35"/>
+  <g fill="#fff">
+    <rect x="132" y="168" width="214" height="142" rx="34" transform="rotate(-8 239 239)" opacity=".64"/>
+    <rect x="160" y="190" width="214" height="142" rx="34" transform="rotate(6 267 261)" opacity=".82"/>
+    <rect x="142" y="216" width="228" height="148" rx="36"/>
+    <path d="M229 252c5.9 0 10.9 4.2 12 9.9l6.8 34.2c1.1 5.4 5.3 9.6 10.7 10.7l34.1 6.8c5.8 1.1 9.9 6.2 9.9 12s-4.2 10.9-9.9 12l-34.1 6.8c-5.4 1.1-9.6 5.3-10.7 10.7l-6.8 34.2c-1.1 5.8-6.2 9.9-12 9.9s-10.9-4.2-12-9.9l-6.8-34.2c-1.1-5.4-5.3-9.6-10.7-10.7l-34.1-6.8c-5.8-1.1-9.9-6.2-9.9-12s4.2-10.9 9.9-12l34.1-6.8c5.4-1.1 9.6-5.3 10.7-10.7l6.8-34.2c1.1-5.7 6.1-9.9 12-9.9Z" fill="#C96B35"/>
+    <rect x="270" y="254" width="70" height="16" rx="8" fill="#C96B35" opacity=".84"/>
+    <rect x="270" y="286" width="48" height="16" rx="8" fill="#C96B35" opacity=".58"/>
+  </g>
+</svg>

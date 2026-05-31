@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Dark Botanical · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0f0f0f;
+    --text-primary: #e8e4df;
+    --text-secondary: #9a9590;
+    --accent-warm: #d4a574;
+    --accent-pink: #e8b4b8;
+    --accent-gold: #c9b896;
+    --font-display: "Cormorant", "Noto Serif SC", Georgia, serif;
+    --font-body: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #deck { display: flex; height: 100vh; transition: transform .8s cubic-bezier(.77,0,.175,1); }
+  .slide { width: 100vw; height: 100vh; flex: 0 0 100vw; padding: 8vh 8vw; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Abstract gradient circles — signature element */
+  .slide::before, .slide::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; filter: blur(80px); }
+  .slide::before { width: 35vw; height: 35vw; bottom: -10vw; right: -5vw; background: radial-gradient(circle, var(--accent-warm) 0%, transparent 70%); opacity: .25; }
+  .slide::after { width: 28vw; height: 28vw; top: -8vw; left: -8vw; background: radial-gradient(circle, var(--accent-pink) 0%, transparent 70%); opacity: .15; }
+
+  /* Vertical accent line */
+  .slide > .accent-line { position: absolute; left: 8vw; top: 8vh; bottom: 8vh; width: 1px; background: linear-gradient(180deg, transparent, var(--accent-gold), transparent); }
+
+  /* chrome */
+  .chrome { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--text-secondary); font-weight: 300; z-index: 5; position: relative; }
+
+  /* Cover */
+  .cover { justify-content: center; align-items: center; text-align: center; }
+  .cover .kicker { font-family: var(--font-display); font-style: italic; font-size: clamp(16px, 1.6vw, 22px); color: var(--accent-warm); margin-bottom: 3vh; letter-spacing: .05em; }
+  .cover h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 8vw, 110px); line-height: 1.05; letter-spacing: -.005em; max-width: 85%; }
+  .cover .subtitle { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(18px, 2vw, 26px); margin-top: 3vh; max-width: 65%; color: var(--text-secondary); line-height: 1.5; }
+  .cover .meta { margin-top: 6vh; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--text-secondary); display: flex; gap: 4vw; }
+  .cover .meta span::before { content: "•"; color: var(--accent-gold); margin-right: 8px; }
+
+  /* Section divider */
+  .section-divider { justify-content: center; align-items: center; text-align: center; }
+  .section-divider .label { font-family: var(--font-display); font-style: italic; font-size: clamp(18px, 2vw, 28px); color: var(--accent-warm); margin-bottom: 3vh; }
+  .section-divider h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(64px, 10vw, 140px); line-height: 1.05; letter-spacing: -.005em; max-width: 90%; }
+  .section-divider .ornament { width: 60px; height: 1px; background: var(--accent-gold); margin: 4vh auto; }
+
+  /* Agenda */
+  .agenda { padding-left: 12vw; }
+  .agenda h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(36px, 5vw, 60px); margin-top: 6vh; margin-bottom: 5vh; max-width: 80%; }
+  .agenda ol { list-style: none; max-width: 80%; }
+  .agenda li { display: flex; gap: 32px; padding: 2.5vh 0; border-bottom: 1px solid rgba(232,228,223,.1); align-items: baseline; }
+  .agenda li::before { content: attr(data-num); font-family: var(--font-display); font-style: italic; color: var(--accent-warm); font-size: 24px; min-width: 50px; }
+  .agenda li > div strong { display: block; font-family: var(--font-display); font-size: clamp(22px, 2.4vw, 32px); margin-bottom: 6px; font-weight: 600; }
+  .agenda li > div span { font-size: clamp(13px, 1.2vw, 16px); color: var(--text-secondary); line-height: 1.6; font-weight: 300; }
+
+  /* Content + stat */
+  .content-with-stat { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6vw; flex: 1; align-items: center; }
+  .content-with-stat .text h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4.5vw, 56px); margin-bottom: 4vh; line-height: 1.1; max-width: 95%; }
+  .content-with-stat .text p { font-size: clamp(15px, 1.4vw, 18px); line-height: 1.7; color: var(--text-secondary); margin-bottom: 2vh; max-width: 92%; font-weight: 300; }
+  .content-with-stat .stat-card { padding: 6vh 4vw; border: 1px solid rgba(212,165,116,.3); border-radius: 4px; background: rgba(212,165,116,.04); position: relative; }
+  .content-with-stat .stat-card::before { content: ""; position: absolute; top: -1px; left: 30%; right: 30%; height: 2px; background: var(--accent-gold); }
+  .content-with-stat .stat-card .num { font-family: var(--font-display); font-weight: 400; font-size: clamp(80px, 12vw, 160px); line-height: .95; color: var(--accent-warm); letter-spacing: -.02em; }
+  .content-with-stat .stat-card .desc { font-size: clamp(14px, 1.3vw, 18px); margin-top: 3vh; color: var(--text-primary); line-height: 1.5; font-weight: 300; }
+  .content-with-stat .stat-card .source { margin-top: 4vh; font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: var(--text-secondary); padding-top: 2vh; border-top: 1px solid rgba(232,228,223,.1); }
+
+  /* Quote */
+  .quote-slide { justify-content: center; padding-left: 12vw; padding-right: 12vw; }
+  .quote-slide blockquote { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(36px, 5.5vw, 80px); line-height: 1.2; max-width: 95%; }
+  .quote-slide blockquote::before { content: "\201C"; color: var(--accent-warm); font-size: 1.3em; line-height: 0; vertical-align: -.2em; margin-right: 8px; }
+  .quote-slide cite { display: block; margin-top: 5vh; font-style: normal; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--accent-gold); font-weight: 400; }
+
+  /* Closing */
+  .closing { justify-content: center; align-items: center; text-align: center; }
+  .closing .label { font-family: var(--font-display); font-style: italic; color: var(--accent-warm); font-size: clamp(18px, 2vw, 26px); margin-bottom: 3vh; }
+  .closing h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 8vw, 100px); line-height: 1.05; max-width: 80%; }
+  .closing .ornament { width: 60px; height: 1px; background: var(--accent-gold); margin: 5vh auto; }
+  .closing .cta-row { display: flex; gap: 3vw; align-items: center; }
+  .closing .cta { background: transparent; color: var(--accent-warm); padding: 1.5vh 2.5vw; border: 1px solid var(--accent-warm); border-radius: 0; font-family: var(--font-display); font-style: italic; font-size: 16px; text-decoration: none; letter-spacing: .1em; }
+  .closing .contact { color: var(--text-secondary); font-size: 11px; letter-spacing: .25em; text-transform: uppercase; }
+
+  .watermark { position: fixed; bottom: 12px; right: 16px; font-family: var(--font-display); font-style: italic; font-size: 11px; color: var(--accent-gold); letter-spacing: .15em; z-index: 100; }
+  .pager { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 50; }
+  .pager button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(212,165,116,.4); background: transparent; color: var(--accent-warm); cursor: pointer; font-family: var(--font-display); }
+  .pager button:hover { background: var(--accent-warm); color: var(--bg-primary); border-color: var(--accent-warm); }
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- 1 Cover -->
+  <section class="slide cover">
+    <span class="kicker">A deep dive</span>
+    <h1>AI 落地<br/>3 个真坑</h1>
+    <p class="subtitle">基于 50+ 企业落地案例的复盘 — 从数据飞轮到生产部署</p>
+    <div class="meta">
+      <span>AnySlide Team</span><span>2026 · Q1</span><span>ANYSLIDE</span>
+    </div>
+  </section>
+
+  <!-- 2 Agenda -->
+  <section class="slide agenda">
+    <div class="chrome"><span>02 / 08</span><span>AGENDA</span></div>
+    <h2>本次讨论的<br/><em style="font-style:italic;color:var(--accent-warm)">3 个</em> 核心议题</h2>
+    <ol>
+      <li data-num="i."><div><strong>数据飞轮断层</strong><span>为什么 70% 的 AI 项目第二年就死了</span></div></li>
+      <li data-num="ii."><div><strong>评估机制缺位</strong><span>没有可量化的"好坏"就没有迭代</span></div></li>
+      <li data-num="iii."><div><strong>Demo 到生产的鸿沟</strong><span>80% 完成度的距离</span></div></li>
+    </ol>
+  </section>
+
+  <!-- 3 Section divider -->
+  <section class="slide section-divider">
+    <span class="label">— Problem one —</span>
+    <h1>数据飞轮<br/>断了</h1>
+    <div class="ornament"></div>
+  </section>
+
+  <!-- 4 Content + stat -->
+  <section class="slide">
+    <div class="chrome"><span>04 / 08</span><span>DATA FLYWHEEL</span></div>
+    <div class="content-with-stat" style="margin-top:6vh">
+      <div class="text">
+        <h2>从用户行为到模型迭代<br/>断在了第二步</h2>
+        <p>大部分企业 PoC 阶段能跑通 AI 能力,但产品上线后,用户行为数据没有回流到训练集。3 个月后模型性能衰减,一年后被新需求超越。</p>
+        <p>真正的飞轮:用户行为日志 → 自动标注 → 周度增量训练 → A/B 灰度 → 留存数据回流。每一步都需要工程化。</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">70%</div>
+        <div class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</div>
+        <div class="source">McKinsey · 2025</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Section divider -->
+  <section class="slide section-divider">
+    <span class="label">— Problem two —</span>
+    <h1>评估机制<br/>缺位</h1>
+    <div class="ornament"></div>
+  </section>
+
+  <!-- 6 Bullets -->
+  <section class="slide agenda">
+    <div class="chrome"><span>06 / 08</span><span>EVALUATION FRAMEWORK</span></div>
+    <h2>建立可量化的<br/><em style="font-style:italic;color:var(--accent-warm)">4 维</em> 评估矩阵</h2>
+    <ol>
+      <li data-num="i."><div><strong>精度 Accuracy</strong><span>离线测试集准确率,只能反映 80% 实际表现</span></div></li>
+      <li data-num="ii."><div><strong>召回 Recall</strong><span>覆盖度,跟业务直接挂钩</span></div></li>
+      <li data-num="iii."><div><strong>业务 KPI</strong><span>转化率/留存/GMV — 真金白银</span></div></li>
+      <li data-num="iv."><div><strong>用户反馈</strong><span>NPS + 投诉率 — 量化的用户感受</span></div></li>
+    </ol>
+  </section>
+
+  <!-- 7 Quote -->
+  <section class="slide quote-slide">
+    <div class="chrome"><span>07 / 08</span><span>VOICE FROM THE FIELD</span></div>
+    <blockquote style="margin-top:auto">不是 AI 难落地,是大部分企业把"AI 项目"和"产品"分开做了。两条腿走路才能走远。</blockquote>
+    <cite>— AnySlide Team · AnySlide</cite>
+  </section>
+
+  <!-- 8 Closing -->
+  <section class="slide closing">
+    <span class="label">— Closing —</span>
+    <h1>3 步落地<br/>下一个季度的 AI 战略</h1>
+    <div class="ornament"></div>
+    <div class="cta-row">
+      <a href="#" class="cta">— Start now —</a>
+      <span class="contact">support@example.com</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="pager"><button onclick="prev()">‹</button><button onclick="next()">›</button></div>
+<script>
+  let idx=0; const deck=document.getElementById('deck'); const total=deck.children.length;
+  function go(i){idx=Math.max(0,Math.min(total-1,i));deck.style.transform=`translateX(-${idx*100}vw)`;}
+  function prev(){go(idx-1);} function next(){go(idx+1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();else if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

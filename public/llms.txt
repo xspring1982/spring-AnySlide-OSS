@@ -1,0 +1,13 @@
+# AnySlide
+
+AnySlide is an open-source AI slide, knowledge-card, and image generation app.
+
+Public project resources:
+
+- Repository: https://github.com/xspring1982/AnySlide
+- License: AGPL-3.0-only
+- Self-hosting: see SELF_HOSTING.md in the repository
+
+Self-hosted deployments should publish their own canonical URLs and support
+contacts. This file intentionally does not reference private hosted-service
+domains or provider accounts.
