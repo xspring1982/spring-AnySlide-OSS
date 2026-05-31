@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bold Signal · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+    --card-bg: #FF5722;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --text-on-card: #1a1a1a;
+    --font-display: "Archivo Black", "Noto Sans SC", system-ui, sans-serif;
+    --font-body: "Space Grotesk", "Noto Sans SC", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg-gradient);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* deck horizontal scroll(跟 guizang 同思路)*/
+  #deck { display: flex; height: 100vh; transition: transform .6s cubic-bezier(.77,0,.175,1); }
+  .slide {
+    width: 100vw; height: 100vh; flex: 0 0 100vw;
+    padding: 6vh 7vw; position: relative;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* navigation chrome */
+  .chrome {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: var(--font-body); font-size: 12px;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: var(--text-secondary); margin-bottom: 4vh;
+  }
+  .section-num { font-family: var(--font-display); font-size: 14px; color: var(--card-bg); }
+  .nav-breadcrumbs { display: flex; gap: 6px; }
+  .nav-breadcrumbs span { opacity: .35; }
+  .nav-breadcrumbs span.active { opacity: 1; color: var(--card-bg); }
+
+  /* Cover */
+  .cover { justify-content: flex-end; }
+  .cover .title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 9vw, 110px); line-height: .95;
+    letter-spacing: -.02em; max-width: 75%;
+  }
+  .cover .subtitle {
+    font-size: clamp(16px, 1.6vw, 22px);
+    color: var(--text-secondary); margin-top: 2vh; max-width: 60%;
+  }
+  .cover .meta {
+    margin-top: 5vh; padding-top: 3vh;
+    border-top: 1px solid rgba(255,255,255,.15);
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: .1em;
+  }
+
+  /* Agenda */
+  .agenda { justify-content: flex-start; }
+  .agenda h2 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 48px); margin-bottom: 4vh;
+  }
+  .agenda ol { list-style: none; }
+  .agenda li {
+    display: flex; align-items: baseline; gap: 24px;
+    padding: 1.2vh 0; border-bottom: 1px solid rgba(255,255,255,.08);
+    font-size: clamp(18px, 2vw, 28px);
+  }
+  .agenda li::before {
+    content: attr(data-num);
+    font-family: var(--font-display); color: var(--card-bg);
+    font-size: 16px; min-width: 32px;
+  }
+
+  /* Section divider */
+  .section-divider { justify-content: center; align-items: flex-start; }
+  .section-divider .label {
+    font-size: 14px; color: var(--card-bg); letter-spacing: .25em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .section-divider h1 {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 10vw, 130px);
+    line-height: .95; margin-top: 3vh; max-width: 80%;
+  }
+
+  /* Content + focal card */
+  .content-with-card {
+    display: grid; grid-template-columns: 5fr 4fr;
+    gap: 5vw; align-items: stretch; flex: 1;
+  }
+  .content-with-card .text h2 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 48px); margin-bottom: 3vh;
+    line-height: 1.1;
+  }
+  .content-with-card .text p {
+    font-size: clamp(15px, 1.4vw, 19px);
+    line-height: 1.65; color: var(--text-secondary);
+    margin-bottom: 1.5vh;
+  }
+  .focal-card {
+    background: var(--card-bg); color: var(--text-on-card);
+    padding: 5vh 4vw; border-radius: 18px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .focal-card .stat {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 8vw, 96px); line-height: 1;
+    letter-spacing: -.03em;
+  }
+  .focal-card .desc {
+    font-size: clamp(14px, 1.2vw, 18px);
+    line-height: 1.4; opacity: .8; margin-top: 2vh;
+  }
+
+  /* Bullets */
+  .bullets-slide { justify-content: flex-start; }
+  .bullets-slide h2 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 48px); margin-bottom: 4vh;
+    max-width: 80%;
+  }
+  .bullets-slide ul { list-style: none; max-width: 90%; }
+  .bullets-slide li {
+    padding: 2vh 0; border-bottom: 1px solid rgba(255,255,255,.08);
+    display: flex; align-items: flex-start; gap: 20px;
+  }
+  .bullets-slide li::before {
+    content: "→"; color: var(--card-bg);
+    font-family: var(--font-display); font-size: 22px;
+    line-height: 1; padding-top: 2px;
+  }
+  .bullets-slide li > div strong {
+    display: block; font-size: clamp(18px, 1.8vw, 24px);
+    color: var(--text-primary); margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .bullets-slide li > div span {
+    font-size: clamp(14px, 1.3vw, 17px); color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Quote */
+  .quote-slide { justify-content: center; align-items: flex-start; padding-left: 12vw; padding-right: 12vw; }
+  .quote-slide blockquote {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4.5vw, 56px);
+    line-height: 1.2; max-width: 90%;
+    border: 0; padding: 0;
+  }
+  .quote-slide blockquote::before { content: "\201C"; color: var(--card-bg); margin-right: 12px; }
+  .quote-slide blockquote::after { content: "\201D"; color: var(--card-bg); margin-left: 8px; }
+  .quote-slide cite {
+    display: block; margin-top: 4vh;
+    font-style: normal; font-size: 14px;
+    color: var(--text-secondary); letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+
+  /* Closing */
+  .closing { justify-content: flex-end; }
+  .closing h1 {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 100px);
+    line-height: .95; margin-bottom: 3vh;
+  }
+  .closing .cta-row {
+    display: flex; gap: 2vw; align-items: center;
+    margin-top: 3vh;
+  }
+  .closing .cta {
+    background: var(--card-bg); color: var(--text-on-card);
+    padding: 1.6vh 2.5vw; border-radius: 100px;
+    font-family: var(--font-display); font-size: 16px;
+    text-decoration: none;
+  }
+  .closing .contact {
+    color: var(--text-secondary); font-size: 14px;
+    letter-spacing: .1em;
+  }
+
+  /* watermark */
+  .watermark {
+    position: fixed; bottom: 12px; right: 16px;
+    font-size: 10px; color: rgba(255,255,255,.25);
+    letter-spacing: .15em; text-transform: uppercase;
+    z-index: 100;
+  }
+
+  /* Pagination controls(模板自带翻页器,iframe 内可用)*/
+  .pager {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 50;
+  }
+  .pager button {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.05); color: var(--text-primary);
+    font-family: var(--font-body); cursor: pointer;
+    transition: all .2s;
+  }
+  .pager button:hover { background: var(--card-bg); border-color: var(--card-bg); color: var(--text-on-card); }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- Slide 1: Cover -->
+  <section class="slide cover">
+    <div class="chrome">
+      <span class="section-num">01 / 08</span>
+      <span>2026 · Q1 · BUSINESS REVIEW</span>
+    </div>
+    <div style="margin-top:auto">
+      <h1 class="title">AI 落地<br/>3 个真坑</h1>
+      <p class="subtitle">基于 50+ 企业落地案例的深度复盘 — 从数据飞轮到生产部署</p>
+      <div class="meta">
+        <span>AnySlide Team · 2026.05</span>
+        <span>BUSINESS · PUBLIC</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2: Agenda -->
+  <section class="slide agenda">
+    <div class="chrome">
+      <span class="section-num">02 / 08</span>
+      <span>AGENDA</span>
+    </div>
+    <h2>本次讨论的 3 个核心议题</h2>
+    <ol>
+      <li data-num="01">数据飞轮断层 — 为什么 70% 的 AI 项目第二年就死了</li>
+      <li data-num="02">评估机制缺位 — 没有可量化的"好坏"就没有迭代</li>
+      <li data-num="03">Demo 到生产的鸿沟 — 80% 完成度的距离</li>
+    </ol>
+  </section>
+
+  <!-- Slide 3: Section divider -->
+  <section class="slide section-divider">
+    <div class="chrome">
+      <span class="section-num">03 / 08</span>
+      <span class="nav-breadcrumbs">
+        <span class="active">PROBLEM 01</span><span>PROBLEM 02</span><span>PROBLEM 03</span>
+      </span>
+    </div>
+    <div style="margin-top:auto;margin-bottom:auto">
+      <p class="label">Problem · 01</p>
+      <h1>数据飞轮断了</h1>
+    </div>
+  </section>
+
+  <!-- Slide 4: Content + focal card -->
+  <section class="slide content-with-card">
+    <div class="chrome" style="position:absolute;top:6vh;left:7vw;right:7vw;">
+      <span class="section-num">04 / 08</span>
+      <span>DATA FLYWHEEL</span>
+    </div>
+    <div class="text" style="padding-top:8vh">
+      <h2>从用户行为到模型迭代的链路<br/>断在了第二步</h2>
+      <p>大部分企业在 PoC 阶段能跑通 AI 能力,但产品上线后,用户使用数据没有回流到训练集。3 个月后模型性能开始衰减,一年后被新需求超越。</p>
+      <p>真正的飞轮:用户行为日志 → 自动标注 pipeline → 周度增量训练 → A/B 灰度 → 留存数据 → 回流。每一步都需要工程化。</p>
+    </div>
+    <div class="focal-card" style="margin-top:8vh">
+      <div>
+        <div class="stat">70%</div>
+        <div class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</div>
+      </div>
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;border-top:1px solid rgba(0,0,0,.15);padding-top:2vh;margin-top:3vh">
+        SOURCE · MCKINSEY 2025
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Section divider -->
+  <section class="slide section-divider">
+    <div class="chrome">
+      <span class="section-num">05 / 08</span>
+      <span class="nav-breadcrumbs">
+        <span>PROBLEM 01</span><span class="active">PROBLEM 02</span><span>PROBLEM 03</span>
+      </span>
+    </div>
+    <div style="margin-top:auto;margin-bottom:auto">
+      <p class="label">Problem · 02</p>
+      <h1>评估机制缺位</h1>
+    </div>
+  </section>
+
+  <!-- Slide 6: Bullets list -->
+  <section class="slide bullets-slide">
+    <div class="chrome">
+      <span class="section-num">06 / 08</span>
+      <span>EVALUATION FRAMEWORK</span>
+    </div>
+    <h2>建立可量化的 4 维评估矩阵</h2>
+    <ul>
+      <li>
+        <div>
+          <strong>精度(Accuracy)</strong>
+          <span>离线测试集准确率 — 但只能反映 80% 实际表现,真实场景永远更复杂</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>召回(Recall)</strong>
+          <span>覆盖度 — 多少应该命中的真的命中了,跟业务直接挂钩</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>业务 KPI</strong>
+          <span>转化率 / 留存 / GMV — 真金白银,不可替代</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>用户反馈</strong>
+          <span>NPS + 投诉率 + 主动反馈 — 量化的"用户感受"</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Slide 7: Quote -->
+  <section class="slide quote-slide">
+    <div class="chrome" style="position:absolute;top:6vh;left:12vw;right:12vw;">
+      <span class="section-num">07 / 08</span>
+      <span>VOICE FROM THE FIELD</span>
+    </div>
+    <blockquote>不是 AI 难落地,是大部分企业把"AI 项目"和"产品"分开做了。两条腿走路才能走远。</blockquote>
+    <cite>— AnySlide Team</cite>
+  </section>
+
+  <!-- Slide 8: Closing -->
+  <section class="slide closing">
+    <div class="chrome">
+      <span class="section-num">08 / 08</span>
+      <span class="nav-breadcrumbs">
+        <span>PROBLEM 01</span><span>PROBLEM 02</span><span class="active">CLOSING</span>
+      </span>
+    </div>
+    <div style="margin-top:auto">
+      <h1>3 步落地<br/>下一个季度的 AI 战略</h1>
+      <div class="cta-row">
+        <a href="#" class="cta">START NOW →</a>
+        <span class="contact">support@example.com · 2026.05</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+
+<div class="pager">
+  <button onclick="prev()">←</button>
+  <button onclick="next()">→</button>
+</div>
+
+<script>
+  let idx = 0;
+  const deck = document.getElementById('deck');
+  const total = deck.children.length;
+  function go(i){ idx = Math.max(0, Math.min(total-1, i)); deck.style.transform = `translateX(-${idx*100}vw)`; }
+  function prev(){ go(idx-1); }
+  function next(){ go(idx+1); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    else if (e.key === 'ArrowLeft') prev();
+  });
+</script>
+
+</body>
+</html>

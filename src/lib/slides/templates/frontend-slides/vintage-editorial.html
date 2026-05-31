@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vintage Editorial · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0E8D8;
+    --bg-warm: #E8DBC2;
+    --ink: #2A1F14;
+    --ink-soft: #6B5A45;
+    --rust: #B85433;
+    --olive: #6B7A3F;
+    --terracotta: #C9876B;
+    --gold: #C9A862;
+    --cream: #F8F1DF;
+    --font-display: "Fraunces", "Noto Serif SC", serif;
+    --font-body: "Inter", "Noto Sans SC", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #deck { display: flex; height: 100vh; transition: transform .6s cubic-bezier(.77,0,.175,1); }
+  .slide {
+    width: 100vw; height: 100vh; flex: 0 0 100vw;
+    padding: 6vh 7vw; position: relative;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Abstract geometric shapes */
+  .geom {
+    position: absolute; pointer-events: none; z-index: 0;
+  }
+  .geom.circle { border-radius: 50%; }
+  .geom.arc {
+    border-radius: 50%;
+    clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+  }
+  .geom.tri {
+    width: 0; height: 0;
+    border-style: solid;
+  }
+
+  .frame {
+    position: relative; z-index: 1; flex: 1;
+    display: flex; flex-direction: column;
+  }
+
+  /* Editorial header rule */
+  .header-rule {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 12px 0;
+    font-family: var(--font-body);
+    font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--ink); font-weight: 600;
+    margin-bottom: 5vh;
+  }
+  .header-rule .left { display: flex; gap: 16px; align-items: baseline; }
+  .header-rule .vol {
+    font-family: var(--font-display); font-style: italic; font-weight: 700;
+    font-size: 18px; letter-spacing: 0;
+  }
+
+  /* Cover */
+  .cover .kicker {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 24px); color: var(--rust);
+    margin-bottom: 2vh;
+  }
+  .cover .title {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(72px, 11vw, 180px);
+    line-height: .88; letter-spacing: -.02em;
+    color: var(--ink);
+  }
+  .cover .title em {
+    font-style: italic; font-weight: 400; color: var(--rust);
+  }
+  .cover .deck-line {
+    margin-top: 4vh; padding-top: 3vh;
+    border-top: 1px solid var(--ink-soft);
+    display: grid; grid-template-columns: 200px 1fr;
+    gap: 4vw; align-items: start;
+  }
+  .cover .deck-line .label {
+    font-family: var(--font-body); font-size: 10px;
+    letter-spacing: .25em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700;
+  }
+  .cover .deck-line .deck-text {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: clamp(14px, 1.3vw, 18px); line-height: 1.5;
+    color: var(--ink);
+  }
+  .cover .byline {
+    margin-top: auto; padding-top: 4vh;
+    border-top: 2px solid var(--ink);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .cover .byline .author {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 18px; color: var(--ink);
+  }
+  .cover .byline .date {
+    font-family: var(--font-body); font-size: 11px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600;
+  }
+
+  /* Agenda */
+  .agenda h2 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(36px, 4.5vw, 64px); line-height: 1.05;
+    letter-spacing: -.02em; margin-bottom: 5vh;
+  }
+  .agenda h2 em { font-style: italic; color: var(--rust); }
+  .agenda ol {
+    list-style: none;
+    columns: 1; gap: 0;
+  }
+  .agenda li {
+    display: grid; grid-template-columns: 100px 1fr;
+    align-items: baseline; padding: 3vh 0;
+    border-bottom: 1px solid var(--ink-soft);
+  }
+  .agenda li:first-child { border-top: 1px solid var(--ink-soft); }
+  .agenda li .num {
+    font-family: var(--font-display); font-weight: 900; font-style: italic;
+    font-size: 48px; color: var(--rust);
+  }
+  .agenda li .text {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 26px); color: var(--ink);
+    line-height: 1.4;
+  }
+  .agenda li .text strong {
+    font-weight: 700; display: block; margin-bottom: .5vh;
+  }
+  .agenda li .text span {
+    font-family: var(--font-body); font-size: 14px;
+    color: var(--ink-soft); font-style: normal;
+  }
+
+  /* Section divider */
+  .section-divider {
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .section-divider .label {
+    font-family: var(--font-body); font-size: 12px;
+    letter-spacing: .3em; text-transform: uppercase;
+    color: var(--rust); font-weight: 700;
+    margin-bottom: 3vh;
+  }
+  .section-divider .ornament {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 32px; color: var(--rust);
+    margin-bottom: 2vh;
+  }
+  .section-divider h1 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(80px, 13vw, 220px); line-height: .85;
+    letter-spacing: -.03em; color: var(--ink);
+  }
+  .section-divider h1 em {
+    font-style: italic; font-weight: 400; color: var(--rust);
+  }
+
+  /* Content with stat */
+  .content-with-stat {
+    display: grid; grid-template-columns: 1.4fr 1fr;
+    gap: 5vw; flex: 1; align-items: start;
+  }
+  .content-with-stat .body h2 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(28px, 3.2vw, 44px); line-height: 1.15;
+    letter-spacing: -.02em; margin-bottom: 4vh;
+  }
+  .content-with-stat .body h2 em { font-style: italic; color: var(--rust); }
+  .content-with-stat .body .lede {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: clamp(16px, 1.4vw, 20px); line-height: 1.5;
+    color: var(--ink); margin-bottom: 3vh;
+    font-style: italic;
+  }
+  .content-with-stat .body p {
+    font-size: clamp(13px, 1vw, 15px); line-height: 1.75;
+    color: var(--ink-soft); margin-bottom: 2vh;
+    column-count: 1;
+  }
+  .stat-block {
+    background: var(--cream);
+    border: 1px solid var(--ink-soft);
+    padding: 5vh 3vw;
+    position: relative;
+  }
+  .stat-block::before {
+    content: ''; position: absolute;
+    inset: 8px; border: 1px solid var(--ink-soft);
+    pointer-events: none;
+  }
+  .stat-block .stat-label {
+    font-family: var(--font-body); font-size: 10px;
+    letter-spacing: .25em; text-transform: uppercase;
+    color: var(--rust); font-weight: 700;
+    margin-bottom: 2vh;
+  }
+  .stat-block .stat {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(80px, 11vw, 160px); line-height: 1;
+    color: var(--ink); letter-spacing: -.04em;
+  }
+  .stat-block .desc {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: 15px; line-height: 1.4;
+    color: var(--ink); margin-top: 2vh;
+    font-style: italic;
+  }
+  .stat-block .src {
+    font-family: var(--font-body); font-size: 10px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft); margin-top: 3vh;
+    padding-top: 2vh; border-top: 1px solid var(--ink-soft);
+    font-weight: 600;
+  }
+
+  /* Bullets */
+  .bullets-slide h2 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(32px, 4vw, 52px); line-height: 1.1;
+    letter-spacing: -.02em; margin-bottom: 5vh;
+  }
+  .bullets-slide h2 em { font-style: italic; color: var(--rust); }
+  .bullets-slide ul {
+    list-style: none;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 3vh 4vw;
+  }
+  .bullets-slide li {
+    display: grid; grid-template-columns: 60px 1fr;
+    gap: 1.5vw; align-items: start;
+    padding-top: 2vh; border-top: 1px solid var(--ink-soft);
+  }
+  .bullets-slide li .glyph {
+    font-family: var(--font-display); font-weight: 900; font-style: italic;
+    font-size: 36px; color: var(--rust); line-height: 1;
+  }
+  .bullets-slide li strong {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(18px, 1.7vw, 24px);
+    color: var(--ink); display: block; margin-bottom: 1vh;
+  }
+  .bullets-slide li span {
+    font-family: var(--font-body); font-size: 13px; line-height: 1.65;
+    color: var(--ink-soft);
+  }
+
+  /* Quote */
+  .quote-slide {
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .quote-slide .ornament {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 48px; color: var(--rust);
+    margin-bottom: 3vh;
+  }
+  .quote-slide blockquote {
+    font-family: var(--font-display); font-weight: 400; font-style: italic;
+    font-size: clamp(28px, 3.5vw, 52px); line-height: 1.3;
+    color: var(--ink); max-width: 75%;
+    letter-spacing: -.01em;
+  }
+  .quote-slide cite {
+    display: block; margin-top: 5vh; padding-top: 3vh;
+    font-style: normal; font-family: var(--font-body);
+    font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700;
+    border-top: 1px solid var(--ink-soft);
+    max-width: 300px; margin-left: auto; margin-right: auto;
+  }
+
+  /* Closing */
+  .closing h1 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(64px, 9vw, 150px); line-height: .9;
+    letter-spacing: -.03em; margin-top: auto;
+  }
+  .closing h1 em { font-style: italic; color: var(--rust); }
+  .closing .cta-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 5vh; padding-top: 4vh;
+    border-top: 2px solid var(--ink);
+  }
+  .closing .cta {
+    font-family: var(--font-body); font-weight: 700;
+    background: var(--ink); color: var(--cream);
+    padding: 16px 32px; text-decoration: none;
+    font-size: 12px; letter-spacing: .2em; text-transform: uppercase;
+  }
+  .closing .contact {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 18px; color: var(--ink-soft);
+  }
+
+  /* Watermark */
+  .watermark {
+    position: fixed; bottom: 16px; right: 24px;
+    font-family: var(--font-body); font-size: 10px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(42,31,20,.4); z-index: 100; font-weight: 600;
+  }
+
+  /* Pager */
+  .pager {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 50;
+  }
+  .pager button {
+    width: 44px; height: 44px; border-radius: 0;
+    border: 1px solid var(--ink); background: var(--cream); color: var(--ink);
+    cursor: pointer; transition: all .2s;
+    font-family: var(--font-display); font-style: italic; font-size: 18px;
+  }
+  .pager button:hover { background: var(--rust); color: var(--cream); border-color: var(--rust); }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- Slide 1: Cover -->
+  <section class="slide">
+    <div class="geom circle" style="width:240px;height:240px;background:var(--terracotta);top:6vh;right:8vw;opacity:.85;"></div>
+    <div class="geom" style="width:100px;height:100px;background:var(--olive);top:25vh;right:18vw;border-radius:50% 50% 50% 0;opacity:.8;"></div>
+    <div class="geom tri" style="border-width:0 60px 100px 60px;border-color:transparent transparent var(--gold) transparent;bottom:25vh;right:32vw;opacity:.7;"></div>
+    <div class="frame cover">
+      <div class="header-rule">
+        <div class="left">
+          <span class="vol">The Quarterly</span>
+          <span>VOL. 24 · NO. 2</span>
+        </div>
+        <span>2026 · Q1 · 业务复盘</span>
+      </div>
+      <p class="kicker">— A Field Report —</p>
+      <h1 class="title">AI 落地<br/><em>3 个真坑</em></h1>
+      <div class="deck-line">
+        <span class="label">导读 · Lede</span>
+        <p class="deck-text">基于 50+ 企业落地案例的深度复盘 — 从数据飞轮到生产部署,看看 AI 项目第二年都死在哪里。</p>
+      </div>
+      <div class="byline">
+        <span class="author">By AnySlide Team · AnySlide</span>
+        <span class="date">May · 2026 · Internal</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2: Agenda -->
+  <section class="slide">
+    <div class="geom" style="width:160px;height:80px;background:var(--olive);top:8vh;right:8vw;border-radius:80px 80px 0 0;opacity:.7;"></div>
+    <div class="frame agenda">
+      <div class="header-rule">
+        <div class="left"><span class="vol">Contents</span><span>02 / 08</span></div>
+        <span>AGENDA</span>
+      </div>
+      <h2>本次讨论的<br/>三个 <em>核心议题</em></h2>
+      <ol>
+        <li>
+          <span class="num">I.</span>
+          <div class="text">
+            <strong>数据飞轮断层</strong>
+            <span>为什么 70% 的 AI 项目第二年就死了</span>
+          </div>
+        </li>
+        <li>
+          <span class="num">II.</span>
+          <div class="text">
+            <strong>评估机制缺位</strong>
+            <span>没有可量化的"好坏"就没有迭代</span>
+          </div>
+        </li>
+        <li>
+          <span class="num">III.</span>
+          <div class="text">
+            <strong>Demo 到生产的鸿沟</strong>
+            <span>80% 完成度的距离</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Slide 3: Section divider -->
+  <section class="slide">
+    <div class="geom circle" style="width:300px;height:300px;background:var(--rust);top:10vh;left:8vw;opacity:.15;"></div>
+    <div class="geom" style="width:160px;height:80px;background:var(--gold);bottom:18vh;right:12vw;border-radius:80px 80px 0 0;opacity:.8;"></div>
+    <div class="frame section-divider">
+      <p class="label">Chapter · I</p>
+      <p class="ornament">— § —</p>
+      <h1>数据 <em>飞轮</em><br/>断了</h1>
+    </div>
+  </section>
+
+  <!-- Slide 4: Content with stat -->
+  <section class="slide">
+    <div class="frame">
+      <div class="header-rule">
+        <div class="left"><span class="vol">Field Note · I</span><span>04 / 08</span></div>
+        <span>DATA FLYWHEEL</span>
+      </div>
+      <div class="content-with-stat">
+        <div class="body">
+          <h2>从用户行为到模型迭代<br/>断在了 <em>第二步</em></h2>
+          <p class="lede">大部分企业在 PoC 阶段能跑通 AI 能力,但产品上线后,数据没有回流到训练集。</p>
+          <p>3 个月后模型性能开始衰减,一年后被新需求超越。这不是模型的问题,是工程链路的问题。</p>
+          <p>真正的飞轮:用户行为日志 → 自动标注 pipeline → 周度增量训练 → A/B 灰度 → 留存数据 → 回流。每一步都需要工程化投入。</p>
+        </div>
+        <div class="stat-block">
+          <p class="stat-label">Key Finding</p>
+          <div class="stat">70%</div>
+          <p class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</p>
+          <p class="src">Source · McKinsey 2025</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Section divider -->
+  <section class="slide">
+    <div class="geom circle" style="width:240px;height:240px;background:var(--terracotta);top:8vh;right:6vw;opacity:.7;"></div>
+    <div class="geom tri" style="border-width:0 80px 120px 80px;border-color:transparent transparent var(--olive) transparent;bottom:14vh;left:14vw;opacity:.6;"></div>
+    <div class="frame section-divider">
+      <p class="label">Chapter · II</p>
+      <p class="ornament">— § —</p>
+      <h1>评估 <em>机制</em><br/>缺位</h1>
+    </div>
+  </section>
+
+  <!-- Slide 6: Bullets -->
+  <section class="slide">
+    <div class="frame bullets-slide">
+      <div class="header-rule">
+        <div class="left"><span class="vol">Field Note · II</span><span>06 / 08</span></div>
+        <span>EVALUATION FRAMEWORK</span>
+      </div>
+      <h2>建立可量化的<br/><em>四维</em>评估矩阵</h2>
+      <ul>
+        <li>
+          <span class="glyph">A.</span>
+          <div>
+            <strong>精度 Accuracy</strong>
+            <span>离线测试集准确率 — 但只能反映 80% 实际表现,真实场景永远更复杂</span>
+          </div>
+        </li>
+        <li>
+          <span class="glyph">R.</span>
+          <div>
+            <strong>召回 Recall</strong>
+            <span>覆盖度 — 多少应该命中的真的命中了,跟业务直接挂钩</span>
+          </div>
+        </li>
+        <li>
+          <span class="glyph">K.</span>
+          <div>
+            <strong>业务 KPI</strong>
+            <span>转化率 / 留存 / GMV — 真金白银,不可替代</span>
+          </div>
+        </li>
+        <li>
+          <span class="glyph">F.</span>
+          <div>
+            <strong>用户反馈</strong>
+            <span>NPS + 投诉率 + 主动反馈 — 量化的"用户感受"</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Slide 7: Quote -->
+  <section class="slide">
+    <div class="geom circle" style="width:200px;height:200px;background:var(--gold);top:10vh;right:8vw;opacity:.5;"></div>
+    <div class="geom" style="width:120px;height:60px;background:var(--rust);bottom:12vh;left:12vw;border-radius:60px 60px 0 0;opacity:.6;"></div>
+    <div class="frame quote-slide">
+      <p class="ornament">— ❝ —</p>
+      <blockquote>不是 AI 难落地,是大部分企业把 AI 项目和产品分开做了。两条腿走路才能走远。</blockquote>
+      <cite>AnySlide Team</cite>
+    </div>
+  </section>
+
+  <!-- Slide 8: Closing -->
+  <section class="slide">
+    <div class="geom circle" style="width:280px;height:280px;background:var(--terracotta);top:-80px;right:-60px;opacity:.5;"></div>
+    <div class="geom tri" style="border-width:0 100px 140px 100px;border-color:transparent transparent var(--olive) transparent;bottom:-40px;left:8vw;opacity:.4;"></div>
+    <div class="frame closing">
+      <div class="header-rule">
+        <div class="left"><span class="vol">Coda</span><span>08 / 08</span></div>
+        <span>CLOSING</span>
+      </div>
+      <h1>三步落地<br/>下一个季度的 <em>AI 战略</em></h1>
+      <div class="cta-row">
+        <a href="#" class="cta">Start Now →</a>
+        <span class="contact">support@example.com · May 2026</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+
+<div class="pager">
+  <button onclick="prev()">←</button>
+  <button onclick="next()">→</button>
+</div>
+
+<script>
+  let idx = 0;
+  const deck = document.getElementById('deck');
+  const total = deck.children.length;
+  function go(i){ idx = Math.max(0, Math.min(total-1, i)); deck.style.transform = `translateX(-${idx*100}vw)`; }
+  function prev(){ go(idx-1); }
+  function next(){ go(idx+1); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    else if (e.key === 'ArrowLeft') prev();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electric Studio · Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0a0a0a;
+    --bg-white: #ffffff;
+    --accent-blue: #4361ee;
+    --accent-blue-light: #6378f0;
+    --text-dark: #0a0a0a;
+    --text-light: #ffffff;
+    --text-mute: #8a8a8a;
+    --font-display: "Manrope", "Noto Sans SC", system-ui, sans-serif;
+    --font-body: "Manrope", "Noto Sans SC", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg-white); color: var(--text-dark);
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+  }
+  #deck { display: flex; height: 100vh; transition: transform .6s cubic-bezier(.77,0,.175,1); }
+  .slide { width: 100vw; height: 100vh; flex: 0 0 100vw; position: relative; overflow: hidden; }
+
+  /* Two-panel split: white top + blue bottom */
+  .split-panel { display: grid; grid-template-rows: 55% 45%; height: 100%; }
+  .panel-top { background: var(--bg-white); padding: 6vh 7vw; display: flex; flex-direction: column; position: relative; }
+  .panel-bottom { background: var(--accent-blue); color: var(--text-light); padding: 5vh 7vw; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  /* Accent bar at panel edge */
+  .panel-bottom::before { content:""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--text-light); }
+
+  /* Brand marks corners */
+  .brand-tl, .brand-tr, .brand-bl, .brand-br {
+    position: absolute; font-size: 11px; letter-spacing: .2em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .brand-tl { top: 6vh; left: 7vw; color: var(--text-mute); }
+  .brand-tr { top: 6vh; right: 7vw; color: var(--text-mute); }
+  .brand-bl { bottom: 4vh; left: 7vw; color: var(--text-light); opacity: .7; }
+  .brand-br { bottom: 4vh; right: 7vw; color: var(--text-light); opacity: .7; }
+
+  /* Cover */
+  .cover .panel-top { justify-content: flex-end; }
+  .cover h1 { font-family: var(--font-display); font-size: clamp(48px, 8vw, 100px); font-weight: 800; line-height: .98; letter-spacing: -.025em; max-width: 80%; }
+  .cover .panel-bottom .meta-row { display: flex; flex-direction: column; gap: 1.5vh; max-width: 70%; }
+  .cover .panel-bottom .label { font-size: 13px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; }
+  .cover .panel-bottom .text { font-size: clamp(18px, 1.8vw, 26px); font-weight: 500; line-height: 1.4; }
+
+  /* Quote-as-hero (single panel) */
+  .quote-hero { background: var(--bg-white); padding: 8vh 10vw; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .quote-hero blockquote { font-family: var(--font-display); font-size: clamp(36px, 5.5vw, 72px); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; max-width: 90%; }
+  .quote-hero blockquote::before { content:"\201C"; color: var(--accent-blue); font-size: 1.2em; margin-right: 8px; }
+  .quote-hero cite { display: block; margin-top: 5vh; font-style: normal; font-size: 14px; letter-spacing: .15em; text-transform: uppercase; color: var(--text-mute); }
+
+  /* Agenda — single white panel with numbered list */
+  .agenda { background: var(--bg-white); padding: 6vh 7vw; height: 100%; display: flex; flex-direction: column; }
+  .agenda h2 { font-family: var(--font-display); font-size: clamp(28px, 4vw, 48px); font-weight: 800; margin-bottom: 5vh; max-width: 80%; }
+  .agenda ol { list-style: none; }
+  .agenda li { display: flex; gap: 32px; padding: 2vh 0; border-bottom: 1px solid #ebebeb; align-items: baseline; }
+  .agenda li::before { content: attr(data-num); font-family: var(--font-display); color: var(--accent-blue); font-size: 16px; font-weight: 800; min-width: 40px; }
+  .agenda li > div { flex: 1; }
+  .agenda li > div strong { display: block; font-size: clamp(20px, 2vw, 28px); font-weight: 700; margin-bottom: 4px; }
+  .agenda li > div span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-mute); line-height: 1.5; }
+
+  /* Section divider — full blue with big text */
+  .section-blue { background: var(--accent-blue); color: var(--text-light); padding: 8vh 7vw; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+  .section-blue .label { font-size: 13px; letter-spacing: .25em; text-transform: uppercase; font-weight: 700; opacity: .85; margin-bottom: 3vh; }
+  .section-blue h1 { font-family: var(--font-display); font-size: clamp(64px, 11vw, 140px); font-weight: 800; line-height: .92; letter-spacing: -.03em; }
+
+  /* Content split: text left + stat panel right */
+  .content-split { display: grid; grid-template-columns: 1fr 1fr; height: 100%; }
+  .content-split .left { padding: 6vh 5vw; display: flex; flex-direction: column; justify-content: center; background: var(--bg-white); }
+  .content-split .left h2 { font-family: var(--font-display); font-size: clamp(28px, 4vw, 48px); font-weight: 800; margin-bottom: 3vh; line-height: 1.1; }
+  .content-split .left p { font-size: clamp(15px, 1.4vw, 19px); line-height: 1.6; color: var(--text-mute); margin-bottom: 1.5vh; }
+  .content-split .right { background: var(--accent-blue); color: var(--text-light); padding: 6vh 5vw; display: flex; flex-direction: column; justify-content: center; }
+  .content-split .right .stat { font-family: var(--font-display); font-size: clamp(72px, 11vw, 140px); font-weight: 800; line-height: .95; letter-spacing: -.04em; }
+  .content-split .right .desc { font-size: clamp(15px, 1.4vw, 20px); line-height: 1.5; opacity: .85; margin-top: 3vh; max-width: 80%; }
+  .content-split .right .source { margin-top: 4vh; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; opacity: .6; padding-top: 2vh; border-top: 1px solid rgba(255,255,255,.2); }
+
+  /* Closing CTA */
+  .closing { background: var(--accent-blue); color: var(--text-light); padding: 8vh 7vw; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+  .closing h1 { font-family: var(--font-display); font-size: clamp(48px, 7vw, 88px); font-weight: 800; line-height: 1; max-width: 90%; }
+  .closing .cta-row { margin-top: 5vh; display: flex; gap: 2vw; align-items: center; }
+  .closing .cta { background: var(--bg-white); color: var(--accent-blue); padding: 1.6vh 3vw; border-radius: 100px; font-family: var(--font-display); font-weight: 800; text-decoration: none; font-size: 16px; }
+  .closing .contact { font-size: 13px; opacity: .85; letter-spacing: .1em; }
+
+  /* watermark + pager */
+  .watermark { position: fixed; bottom: 12px; right: 16px; font-size: 10px; color: rgba(0,0,0,.3); letter-spacing: .15em; text-transform: uppercase; z-index: 100; mix-blend-mode: difference; }
+  .pager { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 50; mix-blend-mode: difference; }
+  .pager button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); background: rgba(0,0,0,.4); color: #fff; font-family: var(--font-body); cursor: pointer; }
+  .pager button:hover { background: var(--accent-blue); border-color: var(--accent-blue); }
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- 1 Cover -->
+  <section class="slide cover">
+    <div class="split-panel">
+      <div class="panel-top">
+        <span class="brand-tl">01 / 08</span>
+        <span class="brand-tr">2026 · Q1 REVIEW</span>
+        <h1>AI 落地<br/>3 个真坑</h1>
+      </div>
+      <div class="panel-bottom">
+        <div class="meta-row">
+          <span class="label">SUBTITLE</span>
+          <p class="text">基于 50+ 企业落地案例的深度复盘 — 从数据飞轮到生产部署</p>
+        </div>
+        <span class="brand-bl">AnySlide Team · ANYSLIDE</span>
+        <span class="brand-br">2026.05</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 Agenda -->
+  <section class="slide">
+    <div class="agenda">
+      <span class="brand-tl">02 / 08 · AGENDA</span>
+      <h2 style="margin-top:8vh">本次讨论的 3 个核心议题</h2>
+      <ol>
+        <li data-num="01"><div><strong>数据飞轮断层</strong><span>为什么 70% 的 AI 项目第二年就死了</span></div></li>
+        <li data-num="02"><div><strong>评估机制缺位</strong><span>没有可量化的"好坏"就没有迭代</span></div></li>
+        <li data-num="03"><div><strong>Demo 到生产的鸿沟</strong><span>80% 完成度的距离</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 Section divider -->
+  <section class="slide">
+    <div class="section-blue">
+      <span class="label">PROBLEM · 01</span>
+      <h1>数据飞轮断了</h1>
+    </div>
+  </section>
+
+  <!-- 4 Content + stat -->
+  <section class="slide">
+    <div class="content-split">
+      <div class="left">
+        <h2>从用户行为到模型迭代<br/>断在了第二步</h2>
+        <p>大部分企业 PoC 阶段能跑通 AI 能力,但产品上线后,用户行为数据没有回流到训练集。3 个月后模型性能衰减,一年后被新需求超越。</p>
+        <p>真正的飞轮:用户行为日志 → 自动标注 → 周度增量训练 → A/B 灰度 → 留存数据回流。每一步都需要工程化。</p>
+      </div>
+      <div class="right">
+        <div>
+          <div class="stat">70%</div>
+          <div class="desc">的 AI 项目在上线第二年因数据飞轮断层而失去优势</div>
+        </div>
+        <div class="source">SOURCE · MCKINSEY 2025</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Section divider -->
+  <section class="slide">
+    <div class="section-blue">
+      <span class="label">PROBLEM · 02</span>
+      <h1>评估机制缺位</h1>
+    </div>
+  </section>
+
+  <!-- 6 Bullets -->
+  <section class="slide">
+    <div class="agenda">
+      <span class="brand-tl">06 / 08 · EVALUATION FRAMEWORK</span>
+      <h2 style="margin-top:8vh">建立可量化的 4 维评估矩阵</h2>
+      <ol>
+        <li data-num="01"><div><strong>精度 Accuracy</strong><span>离线测试集准确率,但只能反映 80% 实际表现,真实场景永远更复杂</span></div></li>
+        <li data-num="02"><div><strong>召回 Recall</strong><span>覆盖度,多少应该命中的真的命中了,跟业务直接挂钩</span></div></li>
+        <li data-num="03"><div><strong>业务 KPI</strong><span>转化率/留存/GMV — 真金白银,不可替代</span></div></li>
+        <li data-num="04"><div><strong>用户反馈</strong><span>NPS + 投诉率 + 主动反馈 — 量化的"用户感受"</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7 Quote-as-hero -->
+  <section class="slide">
+    <div class="quote-hero">
+      <span class="brand-tl">07 / 08 · VOICE FROM THE FIELD</span>
+      <blockquote style="margin-top:auto">不是 AI 难落地,是大部分企业把"AI 项目"和"产品"分开做了。两条腿走路才能走远。</blockquote>
+      <cite>— AnySlide Team</cite>
+    </div>
+  </section>
+
+  <!-- 8 Closing -->
+  <section class="slide">
+    <div class="closing">
+      <span class="brand-tl" style="color:rgba(255,255,255,.7)">08 / 08 · CLOSING</span>
+      <h1>3 步落地<br/>下一个季度的 AI 战略</h1>
+      <div class="cta-row">
+        <a href="#" class="cta">START NOW →</a>
+        <span class="contact">support@example.com</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="pager"><button onclick="prev()">←</button><button onclick="next()">→</button></div>
+<script>
+  let idx=0; const deck=document.getElementById('deck'); const total=deck.children.length;
+  function go(i){idx=Math.max(0,Math.min(total-1,i));deck.style.transform=`translateX(-${idx*100}vw)`;}
+  function prev(){go(idx-1);} function next(){go(idx+1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();else if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!--
+  Phase 1 PR32:Blueprint 端到端验证模板(最简单的 5 页 deck 示范)
+  目的:证明 schema + slot-extractor + renderer 三件套能跑通,不动现有线上模板。
+
+  约定(看上面 schema.ts):
+    - <section data-section-role="..."> 标 role
+    - <h1 data-slot="title" data-slot-max="40">PLACEHOLDER</h1>
+    - <ul data-slot="bullets" data-slot-type="list" data-slot-max="80">...</ul>
+
+  渲染时:
+    - renderer 用 cheerio 找 [data-slot],按 blueprint.slots 严格填
+    - 不动 CSS / class / data-* 之外的属性
+
+  风格选用:简洁现代风(对标 AnyGen "商务蓝调"),viewport 16:9
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Blueprint Demo Template</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1f2937;
+    --text-muted: #6b7280;
+    --accent: #3b82f6;
+    --border: #e5e7eb;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+  section {
+    width: 100vw; height: 100vh;
+    padding: 60px 80px;
+    display: flex; flex-direction: column;
+    page-break-after: always;
+  }
+  h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 700; line-height: 1.2; }
+  h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 600; margin-bottom: 24px; }
+  p { font-size: clamp(16px, 1.8vw, 22px); line-height: 1.6; color: var(--text-muted); }
+  ul { list-style: none; }
+  li { font-size: clamp(16px, 1.6vw, 20px); padding: 12px 0; border-bottom: 1px solid var(--border); }
+  li:before { content: "→ "; color: var(--accent); font-weight: 700; }
+  .accent { color: var(--accent); }
+  .center { justify-content: center; align-items: center; text-align: center; }
+  .meta { margin-top: auto; font-size: 14px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- Section 1: Cover -->
+<section data-section-role="cover" class="center">
+  <h1 data-slot="title" data-slot-max="40" data-slot-required="true">PLACEHOLDER 标题</h1>
+  <p data-slot="subtitle" data-slot-max="60" style="margin-top: 24px;">PLACEHOLDER 副标题</p>
+  <div class="meta" data-slot="byline" data-slot-max="40">PLACEHOLDER 署名 / 日期</div>
+</section>
+
+<!-- Section 2: Agenda -->
+<section data-section-role="agenda">
+  <h2 data-slot="title" data-slot-max="30" data-slot-required="true">PLACEHOLDER 议程标题</h2>
+  <ul data-slot="items" data-slot-type="list" data-slot-max="40" data-slot-required="true">
+    <li>PLACEHOLDER 议程项 1</li>
+    <li>PLACEHOLDER 议程项 2</li>
+    <li>PLACEHOLDER 议程项 3</li>
+  </ul>
+</section>
+
+<!-- Section 3: Content with bullets -->
+<section data-section-role="content">
+  <h2 data-slot="title" data-slot-max="30" data-slot-required="true">PLACEHOLDER 章节标题</h2>
+  <p data-slot="lead" data-slot-max="120" style="margin-bottom: 32px;">PLACEHOLDER 导语</p>
+  <ul data-slot="bullets" data-slot-type="list" data-slot-max="80">
+    <li>PLACEHOLDER bullet 1</li>
+    <li>PLACEHOLDER bullet 2</li>
+    <li>PLACEHOLDER bullet 3</li>
+  </ul>
+</section>
+
+<!-- Section 4: Big number / callout -->
+<section data-section-role="content" class="center">
+  <h2 data-slot="label" data-slot-max="20">PLACEHOLDER 指标名</h2>
+  <h1 data-slot="big_number" data-slot-max="15" class="accent" style="font-size: clamp(80px, 14vw, 160px); margin: 24px 0;">XXX</h1>
+  <p data-slot="caption" data-slot-max="80">PLACEHOLDER 说明</p>
+</section>
+
+<!-- Section 5: Closing -->
+<section data-section-role="closing" class="center">
+  <h1 data-slot="title" data-slot-max="20" data-slot-required="true">PLACEHOLDER 结束语</h1>
+  <p data-slot="contact" data-slot-max="60" style="margin-top: 32px;">PLACEHOLDER 联系方式</p>
+</section>
+
+</body>
+</html>
